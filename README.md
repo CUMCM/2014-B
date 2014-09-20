@@ -1,0 +1,11 @@
+CUMCM-2014  Problem B
+
+Creative Folding Table
+
+A company manufactures a series of folding round table. The legs of the table can be stretched to a flat against on the hinge system (see Figures 1-2). The legs are composed of two groups of wooden beams. Each group is bound with a reinforcing steel bar which is fixed to the two outermost wooden beams but can be slipped in the slot holes on the inner beams (see Figure 3). The table is appealing because of its ruled surface design and esthetically pleasing look. The annex shows the dynamic process of the folding table.
+
+1. Assume that the size of rectangular flat is 120 cm × 50 cm × 3 cm and the width of each wooden beam is 2.5 cm. The reinforcing steel bar of each group is fixed in the middle of two outermost wooden legs. The height of the folding table is 53 cm. Please establish a mathematical model to describe the dynamic folding process of the table, and give the designing parameters (e.g. the lengths of the slot holes on the wooden beams) and the mathematical description of the foot curve (the red curve in Figure 4).
+
+2. The folding table products should be designed to achieve the following characters: good solidity, easy to process, and less material. For the given design requirements on height of the folding table and the diameter of circular table top, please give the optimal designing parameters, such as the size of rectangular flat, the position of the reinforcing steel bar, and the lengths of the slot holes on the wooden beams, etc. For the folding table with 70 cm height and 80 cm diameter, please determine the optimal designing parameters.
+
+3. The company intends to develop folding table design software. According to the height of the folding table, the outline of the table top and the outline of the foot curve draw by the customer, the software should give the shape and the size of the flat material and practically optimal manufacture parameters, so that the product approximates the customer’s settings as good as possible. Your team is asked to establish a mathematical model for such software, and to design some folding tables based on your model. Please give the related manufacture parameters, and draw at least 8 figures to depict the dynamic process of the folding tables.
