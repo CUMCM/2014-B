@@ -4,7 +4,7 @@
 % september 13, 2014
 % ------------------------------------------------------------------------
 
-type = 'heart';
+type = 'heart'; % 'circle', 'rectangle', hexagon', 'octagon', 'heart'
 
 switch type
     case 'circle01'

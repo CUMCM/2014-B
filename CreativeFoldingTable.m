@@ -1,8 +1,13 @@
+% CreativeFoldingTable Matlab script for 2014 CUMCM problem B
+%% ------------------------------------------------------------------------
+% zhou lvwen: zhou.lv.wen@gmail.com
+% september 13, 2014
+%% ------------------------------------------------------------------------
 % 2014 CUMCM - B: Creative Folding Table: CreativeFoldingTable.m
 % 
 % http://vimeo.com/groups/etsas/videos/54411397
 % http://www.robertvanembricqs.com/#!rising-side-table/c1z4p
-% ------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
 %
 %   y                        |<------L1---->|            | d = 2.5cm
 %   ^                                                    V
@@ -18,10 +23,29 @@
 %   +----+-----------------+--+--+-----------+-----> x    .
 %       -W                  0  a  b          W            .
 %
-% ------------------------------------------------------------------------
-% zhou lvwen: zhou.lv.wen@gmail.com
-% september 13, 2014
-% ------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
+% USAGE: [beams,table] = CreativeFoldingTable( H, W, D, R, shape, name,...
+%                                                     isanimate, isresults)
+%                    H = height of the folding table
+%                    W = width of the rectangular flat 
+%                    D = thickness of the rectangular flat 
+%                    R = parameters for desktop
+%                shape = shape of the desktop: 'ellipse' or 'polygon'
+%                 name = name of output files
+%            isanimate = is write a gif animation file?: true or false
+%            isresults = is write the results in to a dat file?
+%% ------------------------------------------------------------------------
+% shape:   'ellipse':   x^2/a^2 + y^2/b^2 = 1       =====>   R = [a, b]
+%
+%
+% shape:   'polygon':     x3,y3)  _______ (x2,y2)   =====>   R = [x1, y1
+%                                /       \                        x2, y2
+%                       (x4,y4) /         \ (x1,y1)               x3, y3
+%                               \         /                       x4, y4
+%                        (x5,y5) \_______/ (x6,y6)                x5, y5
+%                                                                 x6, y6
+%                                                                 x1, y1]
+%% ------------------------------------------------------------------------
 
 function [beams,table] = CreativeFoldingTable( H, W, D, R, shape, name,...
                                                isanimate, isresults)
@@ -122,7 +146,7 @@ function [L, w] = optimizedparameter(W, H, D, shapefun, sign)
 %      |                     :     :          %    2.5 <= w <= 5
 %      |    table_top_face___:____ :          %    D/2 <= w <= 2*D
 % 0    |_     _______________|\____|          %    n = W/w in [10,11,...30]
-%      |                    \ \               %    theta < 75 oC 
+%      |                    \ \               %    theta < 75/180*pi
 %      |                     \ \ theta        %    xend  > x0 +(R-x0)/2
 %      |         longest beam \ \             %    xend  < R + D
 %      |                       \ \            %     
@@ -156,11 +180,11 @@ sint = (H-D)./(L-x0);
 theta = asin(sint); 
 
 % x0 +(R-x0)/2 < xend  < R + D
-xend = x0 + L.*cos(theta);
+xend = x0 + (L-x0).*cos(theta);
 [theta, L, w, x0,n] = mask((xend<=R+D)&(xend>=(R+x0)/2), theta, L, w, x0,n);
 
 
-% minimize theta & minimize L & theta < 75 oC if possible
+% minimize theta & minimize L & theta < 75/180pi if possible
 if any(theta<(75/180*pi))
     [theta, L, w, x0,n] = mask(theta<(75/180*pi), theta, L, w, x0,n);
     [theta, L, w, x0,n] = mask(L==min(L), theta, L, w, x0,n);
@@ -256,17 +280,17 @@ for sign = [-1,1]
     xbar = (x0 + L(j)*sign)/2;
 
     for i = 1:n
-        obj(i,j).id = i + (j-1)*n;  % ID
-        obj(i,j).w  = w;            % width
-        obj(i,j).d  = d;            % thickness
+        obj(i,j).id = i + (j-1)*n;     % ID
+        obj(i,j).w  = w;               % width
+        obj(i,j).d  = d;               % thickness
         
-        y0 = -R+w/2 + w*(i-1);    % origin point
+        y0 = -R+w/2 + w*(i-1);         % origin point
         x0 = shapefun(y0,sign);
         obj(i,j).y0 = y0;
         obj(i,j).x0 = x0;
         obj(i,j).z0 = 0;
         
-        obj(i,j).x1 = sign*L(j);            % end point
+        obj(i,j).x1 = sign*L(j);       % end point
         obj(i,j).y1 = y0;
         obj(i,j).z1 = 0;
         
