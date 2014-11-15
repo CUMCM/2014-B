@@ -111,16 +111,10 @@ for ti = 1:nsteps
             
             dbeta = atan(beams(i,j).d/2/holen)*sign;
             
-            holenx = holen*cos(beta-dbeta);
-            holenz = holen*sin(beta-dbeta)*sign;
-            
-            scale = beams(i,j).l/holen;
-
-            beams(i,j).x1 = beams(i,j).x0 + holenx.*scale*sign;
-            beams(i,j).z1 = beams(i,j).z0 + holenz.*scale;
+            beams(i,j).x1 = beams(i,j).x0 + beams(i,j).l*cos(beta-dbeta)*sign;
+            beams(i,j).z1 = beams(i,j).z0 + beams(i,j).l*sin(beta-dbeta)*sign;
             beams(i,j).holen = holen;
         end
-
     end
 
     hbar = plotsteelbar(bars, rect, hbar);
@@ -156,8 +150,8 @@ function [L, w] = optimizedparameter(W, H, D, shapefun, sign)
 %      z                                      %
 %
 
-R = W/2;                % table radius
-L = max(R,H):3*W;       % range of rectangle's length
+R = W/2;                 % table radius
+L = max(R,H):5*max(R,H); % range of rectangle's length
 
 % determined the range of beams' width and number of beams
 w = [max(2.5,D/2) min(D*2,5)];
@@ -183,7 +177,6 @@ theta = asin(sint);
 xend = x0 + (L-x0).*cos(theta);
 [theta, L, w, x0,n] = mask((xend<=R+D)&(xend>=(R+x0)/2), theta, L, w, x0,n);
 
-
 % minimize theta & minimize L & theta < 75/180pi if possible
 if any(theta<(75/180*pi))
     [theta, L, w, x0,n] = mask(theta<(75/180*pi), theta, L, w, x0,n);
@@ -195,8 +188,8 @@ else
 end
 
 % ------------------------------------------------------------------------
-function varargout = mask(masks, varargin);
 
+function varargout = mask(masks, varargin)
 for i = 1:length(varargin);
     vari = varargin{i};
     varargout{i} = vari(masks);
@@ -314,7 +307,6 @@ for sign = [-1 1]
     z0 = cat(1,beams(:,j).z0); z1 = cat(1,beams(:,j).z1);
     w  = cat(1,beams(:,j).w)/1.05;  d  = cat(1,beams(:,j).d);
     
-    
     theta = -atan( (z0-z1)./(x0-x1) )*sign;
     mask = (z1-z0)<0 & ((x1-x0)*sign)<0;
     theta(mask) = -pi + theta(mask);
@@ -330,11 +322,11 @@ for sign = [-1 1]
     y11 = y1 - w/2; y12 = y1 + w/2;
     
     x = [x01 x01 x02 x02; x11 x11 x12 x12; x01 x01 x11 x11;
-        x02 x02 x12 x12; x01 x02 x12 x11; x01 x02 x12 x11];
+         x02 x02 x12 x12; x01 x02 x12 x11; x01 x02 x12 x11];
     y = [y01 y02 y02 y01; y11 y12 y12 y11; y01 y02 y12 y11;
-        y01 y02 y12 y11; y01 y01 y01 y01; y12 y12 y12 y12];
+         y01 y02 y12 y11; y01 y01 y01 y01; y12 y12 y12 y12];
     z = [z01 z01 z02 z02; z11 z11 z12 z12; z01 z01 z11 z11;
-        z02 z02 z12 z12; z01 z02 z12 z11; z01 z02 z12 z11];
+         z02 z02 z12 z12; z01 z02 z12 z11; z01 z02 z12 z11];
     
     h1 = fill3(x',y',z','red');
     
@@ -489,13 +481,9 @@ for sign = [-1 1];
     
     dbeta = atan(d./dr)*sign;
 
-    dx = dr.*cos(beta-dbeta);
-    dz = dr.*sin(beta-dbeta)*sign;
-    
-    scale = beamlen./dr;
-    xi = x0 + dx.*scale*sign;
+    xi = x0 + beamlen.*cos(beta-dbeta)*sign;
     yi = y0;
-    zi = z0 + dz.*scale;
+    zi = z0 + beamlen.*sin(beta-dbeta)*sign;
     if ishandle(h)&(length(h)>=j)
         set(h(j),'xdata',xi,'ydata',yi,'zdata',zi);
     else
