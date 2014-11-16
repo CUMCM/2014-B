@@ -4,10 +4,10 @@
 % september 13, 2014
 % ------------------------------------------------------------------------
 
-type = 'heart'; % 'circle', 'rectangle', hexagon', 'octagon', 'heart'
+type = 'hexagon'; % 'circle', 'rectangle', hexagon', 'octagon', 'heart'
 
 switch type
-    case 'circle01'
+    case 'circle'
         H  = 53; W = 50; D =  3;
         R = [W/2 W/2];
         [beams,table] = CreativeFoldingTable(H,W,D,R,'ellipse',type);
@@ -57,6 +57,8 @@ switch type
         x = 13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t);
         y = y./max(y)*W/2;
         x = x./max(x)*W/2.75-x(y==max(y));
+        xshift = x(y==max(y));
+        x = x - xshift(1);
         R = [x' y'];
         [beams,table] = CreativeFoldingTable(H,W,D,R,'polygon',type);
 end
