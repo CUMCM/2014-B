@@ -66,9 +66,10 @@ if isanimate; nsteps = 80; else; nsteps = 1; end;
 global namefile; namefile = ['Folding-Table-',name];
 
 table = desktop(shape, H, R);
-shapefun = @(y,sign)tableshape(shape, R, y, sign);
+shapefun = @(y,sign)tableshape(shape, table.r, y, sign);
 
 [Lleft , w] = optimizedparameter(W, H, D, shapefun, -1);
+
 [Lright, w] = optimizedparameter(W, H, D, shapefun,  1);
 rect = rectflat(W,[Lleft,Lright],D);
 
@@ -212,29 +213,14 @@ switch shape
         x = sqrt(1-y.^2)*Rx*sign;
     case 'polygon' % polygon: rectangles, hexagon, octagon...
         x1 = R(:,1); y1 = R(:,2);
-        x2 = x1([2:end 1]);
-        y2 = y1([2:end 1]);
-        
-        x = zeros(size(y));
-        for i = 1:length(y)
-            if sign>0
-                j = find(xor(y(i)>=y1,y(i)>y2));
-                j1 = find( (x1(j)+x2(j))>=0 );
-                j = j(j1(1));
-            else
-                j = find(xor(y(i)>y1,y(i)>=y2));
-                j1 = find( (x1(j)+x2(j))<=0 );
-                j = j(j1(1));
-            end
-
-            if   abs(y2(j)-y1(j))<1e-10;
-                if sign>0; x(i) = max(x1(j), x2(j));end
-                if sign<0; x(i) = min(x1(j), x2(j));end
-            else
-                x(i) = x1(j) - (x2(j)-x1(j))/(y2(j)-y1(j))*(y1(j)-y(i));
-            end
-
-        end
+        [y, I1] = sort(y);
+        one = ones(size(y));
+        x2 = [0*one  sign*100*one  NaN*one]';
+        y2 = [y      y             NaN*one]';
+        [x,  ytmp] = polyxpoly( x2(:)', y2(:)', x1', y1');
+        [ytmp, I2] = sort(ytmp);
+        x = x(I2);
+        x(I1) = x;
     otherwise
         error('Unknown shape, shape should be "ellipse" or "polygon"');
 end
@@ -452,9 +438,9 @@ function h = plotfootcurve(table,bars,rect, shapefun, h)
 % dx = xm - x0; dz = zm - z0; dr = sqrt(dx^2 + dz^2 - (h/2)^2);
 % beta = atan(dz/dx); dbeta = atan(h/2/dr);
 % 
-% xi = x0 + dx*cos(beta-dbeta)* (L/2 - x0)/dr;
+% xi = x0 + beamlength*cos(beta-dbeta)
 % yi = y0
-% zi = z0 + dz*cos(beta-dbeta)* (L/2 - x0)/dr;
+% zi = z0 + beamlength*sin(beta-dbeta)
 %
 
 d = rect.d/2;
@@ -463,7 +449,7 @@ for sign = [-1 1];
     j = (sign+1)/2 + 1;
     Ry = max(table.r(:,2)*sign);
     
-    y0 = -Ry:Ry/25:Ry;
+    y0 = [-Ry+0.1:Ry/25:Ry-0.1]';
     x0 = shapefun(y0,sign);
     z0 = 0*y0;
 
@@ -591,17 +577,14 @@ formatstring = ['%% %2s\t %6s\t %6s\t %6s\t %6s\t %6s\n'];
 
 fprintf(fid,'%%%% size of rectangular flat: %4.2f X %4.2f X %4.2f \n\n', ...
                                            sum(rect.l), rect.w, rect.d);
-
+                                       
 fprintf(fid,formatstring, 'Id','L','W','H','x','l');
-
-formatstring = ' %2i\t %6.2f\t %6.2f\t %6.2f\t %6.2f\t %6.2f\n';
-
 Id = cat(1,beams.id);
 L = cat(1,beams.l);
 W = cat(1,beams.w);
 D = cat(1,beams.d);
 x = cat(1,beams.holep);
 l = cat(1,beams.holen) - x;
-data = [Id L W D x l]; 
-fprintf(fid,formatstring, data');
+formatstring = ' %2i\t %6.2f\t %6.2f\t %6.2f\t %6.2f\t %6.2f\n';
+fprintf(fid,formatstring, [Id L W D x l]');
 fclose(fid);
