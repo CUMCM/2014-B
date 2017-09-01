@@ -87,7 +87,7 @@ hbeams = plotbeams(beams);
 hbar = plotsteelbar(bars, rect,[]);
 
 % plot foot curve
-hfoot = plotfootcurve(table,bars,rect,shapefun,[]);
+hfoot = plotfootcurve(table,bars,rect,shapefun);
 
 if isanimate; frames = writeanimate([],0.1,'start'); end
 
@@ -117,7 +117,6 @@ for ti = 1:nsteps
             beams(i,j).holen = holen;
         end
     end
-
     hbar = plotsteelbar(bars, rect, hbar);
     hbeams = plotbeams(beams);
     hfoot = plotfootcurve(table,bars,rect,shapefun,hfoot);
@@ -447,9 +446,9 @@ d = rect.d/2;
 
 for sign = [-1 1];
     j = (sign+1)/2 + 1;
-    Ry = max(table.r(:,2)*sign);
+    Ry = max(table.r(:,2))*sign;
     
-    y0 = [-Ry+0.1:Ry/25:Ry-0.1]';
+    y0 = [-Ry+0.1*sign:Ry/25:Ry-0.1*sign]';
     x0 = shapefun(y0,sign);
     z0 = 0*y0;
 
@@ -470,10 +469,11 @@ for sign = [-1 1];
     xi = x0 + beamlen.*cos(beta-dbeta)*sign;
     yi = y0;
     zi = z0 + beamlen.*sin(beta-dbeta)*sign;
-    if ishandle(h)&(length(h)>=j)
-        set(h(j),'xdata',xi,'ydata',yi,'zdata',zi);
+    
+    if nargin==4
+         h(j) = plot3(xi,yi,zi,'-m','linewidth',2);
     else
-        h(j) = plot3(xi,yi,zi,'-m','linewidth',2);
+        set(h(j),'xdata',xi,'ydata',yi,'zdata',zi);
     end
 end
 
